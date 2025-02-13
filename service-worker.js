@@ -23,11 +23,13 @@ self.addEventListener('message', function (event) {
 });
 
 self.addEventListener('push', function (event) {
+  console.log('pushed nova notificação')
   const options = {
     body: event.data ? event.data.text() : 'Nova notificação recebida!',
     icon: 'icons/icon-192.png',
     badge: 'icons/icon-192.png',
   };
+
 
   event.waitUntil(
     self.registration.showNotification('📢 Notificação!', options)
