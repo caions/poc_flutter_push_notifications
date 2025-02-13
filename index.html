@@ -1,48 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <base href="/poc_flutter_push_notifications/">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="poc_flutter_push_notifications">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>poc_flutter_push_notifications</title>
-  <link rel="manifest" href="/poc_flutter_push_notifications/manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notifications Test</title>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/poc_flutter_push_notifications/service-worker.js')
-        .then(reg => console.log('✅ Service Worker registrado:', reg))
-        .catch(err => console.error('❌ Erro ao registrar o Service Worker:', err));
-    }
-  
-    function subscribeToPush() {
-      if (Notification.permission === "default") {
-        Notification.requestPermission().then(function(permission) {
-          if (permission === "granted") {
-            console.log("✅ Permissão de notificação concedida!");
-          } else {
-            console.log("⚠️ Permissão de notificação negada!");
-          }
+    <h1>Teste de Push Notifications</h1>
+    <button id="notifyBtn">Enviar Notificação</button>
+    
+    <script>
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado', reg))
+                .catch(err => console.error('Erro ao registrar Service Worker', err));
+        }
+
+        document.getElementById('notifyBtn').addEventListener('click', async () => {
+            if (Notification.permission === 'granted') {
+                new Notification('Olá!', { body: 'Esta é uma notificação de teste.' });
+            } else if (Notification.permission !== 'denied') {
+                let permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    new Notification('Olá!', { body: 'Você permitiu notificações.' });
+                }
+            }
         });
-      } else if (Notification.permission === "granted") {
-        console.log("🔔 Permissão já concedida!");
-      } else {
-        console.log("❌ Notificações bloqueadas pelo usuário!");
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>
