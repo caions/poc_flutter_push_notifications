@@ -1,4 +1,10 @@
 self.addEventListener('push', event => {
-  console.log('Push recebido:', event);
-  self.registration.showNotification('Teste', { body: 'Notificação pelo Service Worker!' });
+  const data = event.data ? event.data.json() : { title: 'Notificação', body: 'Sem conteúdo' };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: 'icon.png'
+    })
+  );
 });

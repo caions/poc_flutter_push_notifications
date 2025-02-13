@@ -7,24 +7,47 @@
 </head>
 <body>
     <h1>Teste de Push Notifications</h1>
+    <button id="subscribeBtn">Inscrever-se para Notificações</button>
     <button id="notifyBtn">Enviar Notificação</button>
-    
+
     <script>
-        if ('Notification' in window && 'serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registrado', reg))
-                .catch(err => console.error('Erro ao registrar Service Worker', err));
+        const publicVapidKey = 'BJsleUGk2gNZy5zdDGVIPiEElcupJrNOh7D3APd6RUeADFjkB9zTx4Bno6Us5jTvt-17Brc8_JZxtnxCYshsHtA';
+
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('Service Worker registrado:', registration);
+
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+
+                console.log('Inscrição de Push:', JSON.stringify(subscription));
+
+                await fetch('/subscribe', {
+                    method: 'POST',
+                    body: JSON.stringify(subscription),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                alert('Inscrição realizada com sucesso!');
+            } else {
+                alert('Seu navegador não suporta notificações push.');
+            }
         }
 
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        document.getElementById('subscribeBtn').addEventListener('click', registerServiceWorker);
+
         document.getElementById('notifyBtn').addEventListener('click', async () => {
-            if (Notification.permission === 'granted') {
-                new Notification('Olá!', { body: 'Esta é uma notificação de teste.' });
-            } else if (Notification.permission !== 'denied') {
-                let permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    new Notification('Olá!', { body: 'Você permitiu notificações.' });
-                }
-            }
+            await fetch('/sendNotification', { method: 'POST' });
         });
     </script>
 </body>
